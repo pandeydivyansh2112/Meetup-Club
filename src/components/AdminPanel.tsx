@@ -1102,9 +1102,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     Current Active Branding Preview
                   </span>
                   <div className="h-12 flex items-center">
-                    {cmsFormData.logoUrl ? (
+                    {cmsFormData.logoUrl && cmsFormData.logoUrl.trim() ? (
                       <img
-                        src={cmsFormData.logoUrl}
+                        src={cmsFormData.logoUrl.trim()}
                         alt="Brand Logo Preview"
                         className="max-h-10 max-w-[200px] object-contain rounded"
                       />
@@ -1292,7 +1292,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div key={item.id} className="p-4 rounded-xl bg-[#EBE6DC] border border-[#D8D2C5] space-y-2 flex flex-col justify-between">
                       <div>
                         <div className="h-32 rounded-lg overflow-hidden mb-2">
-                          <img src={item.coverImageUrl} alt={item.title} className="w-full h-full object-cover" />
+                          <img src={item.coverImageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'} alt={item.title} className="w-full h-full object-cover" />
                         </div>
                         <h4 className="text-xs font-bold text-white">{item.title}</h4>
                         <p className="text-[11px] text-[#F04E36] font-mono">{item.clientOrEvent} • {item.metrics}</p>
@@ -1338,7 +1338,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
                   {gallery.map((item) => (
                     <div key={item.id} className="relative group rounded-xl overflow-hidden bg-[#EBE6DC] border border-[#D8D2C5] aspect-square">
-                      <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                      <img src={item.imageUrl || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80'} alt={item.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-between">
                         <span className="text-[10px] text-white font-bold">{item.title}</span>
                         <div className="flex justify-between items-center">
@@ -1994,9 +1994,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             </td>
                             <td className="py-3 px-3">
                               <div className="flex items-center gap-2.5">
-                                {member.photoURL ? (
+                                {member.photoURL && member.photoURL.trim() ? (
                                   <img
-                                    src={member.photoURL}
+                                    src={member.photoURL.trim()}
                                     alt=""
                                     className="w-7 h-7 rounded-full object-cover border border-[#D8D2C5]"
                                   />
@@ -2342,14 +2342,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       )}
 
       {/* Receipt Viewer Modal */}
-      {receiptModalUrl && (
+      {receiptModalUrl && receiptModalUrl.trim() !== '' && (
         <div
           onClick={() => setReceiptModalUrl(null)}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-zoom-out"
         >
           <div className="relative max-w-xl w-full p-2" onClick={(e) => e.stopPropagation()}>
             <img
-              src={receiptModalUrl}
+              src={receiptModalUrl.trim()}
               alt="Payment Receipt"
               className="w-full max-h-[85vh] object-contain rounded-2xl border border-[#D8D2C5] shadow-2xl"
             />

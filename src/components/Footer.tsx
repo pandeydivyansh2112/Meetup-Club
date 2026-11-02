@@ -62,9 +62,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, cmsContent }) => {
           {/* Brand Col */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              {cmsContent.logoUrl ? (
+              {cmsContent.logoUrl && cmsContent.logoUrl.trim() ? (
                 <img
-                  src={cmsContent.logoUrl}
+                  src={cmsContent.logoUrl.trim()}
                   alt="Meetup Club"
                   className="max-h-10 w-auto object-contain rounded-lg border border-[#4A4A4A]"
                 />

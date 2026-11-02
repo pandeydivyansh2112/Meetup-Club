@@ -248,7 +248,7 @@ export const GateScanner: React.FC<GateScannerProps> = ({
       setScanResult({
         status: 'unverified',
         ticket,
-        message: 'PAYMENT NOT VERIFIED - PENDING ADMIN APPROVAL',
+        message: 'Tickets are not verified from the admin',
         scannedAt: new Date().toLocaleTimeString(),
       });
     } else {
@@ -264,13 +264,9 @@ export const GateScanner: React.FC<GateScannerProps> = ({
   };
 
   const handleQrDecoded = (decodedText: string) => {
-    if (isProcessingRef.current) return;
+    if (isProcessingRef.current || scanResult !== null) return;
     isProcessingRef.current = true;
-    processTicketCode(decodedText).finally(() => {
-      setTimeout(() => {
-        isProcessingRef.current = false;
-      }, 1500);
-    });
+    processTicketCode(decodedText);
   };
 
   const handleQrFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,7 +297,10 @@ export const GateScanner: React.FC<GateScannerProps> = ({
   const handleScanNextGuest = () => {
     setScanResult(null);
     setSearchCode('');
-    isProcessingRef.current = false;
+    // Brief 300ms cooldown so the previous physical pass isn't instantly scanned again
+    setTimeout(() => {
+      isProcessingRef.current = false;
+    }, 300);
   };
 
   // Gate Turnstile Stats
@@ -423,24 +422,27 @@ export const GateScanner: React.FC<GateScannerProps> = ({
       </div>
 
       {/* ========================================================= */}
+      {/* ========================================================= */}
       {/* MODE 1: LIVE CAMERA SCANNER                                */}
       {/* ========================================================= */}
-      {activeMode === 'camera' && !scanResult && (
+      {activeMode === 'camera' && (
         <div className="space-y-4">
           <div className="relative rounded-2xl overflow-hidden bg-[#2A2A2B] border-2 border-[#D8D2C5] min-h-[320px] sm:min-h-[380px] flex flex-col items-center justify-center">
-            {/* Html5Qrcode video mount target */}
+            {/* Html5Qrcode video mount target - permanently mounted in camera mode to eliminate stream lag */}
             <div id="qr-reader" className="w-full h-full" />
 
             {/* Viewfinder crosshairs overlay */}
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="relative w-56 h-56 border-2 border-[#F04E36] rounded-2xl shadow-[0_0_20px_rgba(240,78,54,0.35)]">
-                <div className="absolute -top-1 -left-1 w-5 h-5 border-t-4 border-l-4 border-[#F04E36]" />
-                <div className="absolute -top-1 -right-1 w-5 h-5 border-t-4 border-r-4 border-[#F04E36]" />
-                <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-4 border-l-4 border-[#F04E36]" />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-4 border-r-4 border-[#F04E36]" />
-                <div className="w-full h-0.5 bg-[#F04E36] absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_8px_rgba(240,78,54,0.8)]" />
+            {!scanResult && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="relative w-56 h-56 border-2 border-[#F04E36] rounded-2xl shadow-[0_0_20px_rgba(240,78,54,0.35)]">
+                  <div className="absolute -top-1 -left-1 w-5 h-5 border-t-4 border-l-4 border-[#F04E36]" />
+                  <div className="absolute -top-1 -right-1 w-5 h-5 border-t-4 border-r-4 border-[#F04E36]" />
+                  <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-4 border-l-4 border-[#F04E36]" />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-4 border-r-4 border-[#F04E36]" />
+                  <div className="w-full h-0.5 bg-[#F04E36] absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_8px_rgba(240,78,54,0.8)]" />
+                </div>
               </div>
-            </div>
+            )}
 
             {cameraError && (
               <div className="absolute inset-x-4 bottom-4 p-3 rounded-xl bg-[#F4F1EA] border border-[#D8D2C5] text-[#2A2A2B] text-xs text-center shadow-lg">
@@ -464,16 +466,18 @@ export const GateScanner: React.FC<GateScannerProps> = ({
             )}
           </div>
 
-          <div className="flex items-center justify-between text-xs text-[#736B63] px-1 font-mono">
-            <span>Align attendee ticket QR inside the reticle.</span>
-            <button
-              onClick={startCamera}
-              className="text-[#F04E36] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Restart Lens
-            </button>
-          </div>
+          {!scanResult && (
+            <div className="flex items-center justify-between text-xs text-[#736B63] px-1 font-mono">
+              <span>Align attendee ticket QR inside the reticle.</span>
+              <button
+                onClick={startCamera}
+                className="text-[#F04E36] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+              >
+                <RotateCcw className="w-3 h-3" />
+                Restart Lens
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -542,7 +546,7 @@ export const GateScanner: React.FC<GateScannerProps> = ({
       {/* SCANNER RESULT OVERLAYS & COLOR ALERTS                    */}
       {/* ========================================================= */}
       {scanResult && (
-        <div className="space-y-4 animate-in zoom-in-95 duration-200">
+        <div className="mt-4 space-y-4 animate-in zoom-in-95 duration-150">
           {/* 🟢 GREEN OVERLAY: VALID TICKET */}
           {scanResult.status === 'valid' && (
             <div className="relative p-6 sm:p-8 rounded-3xl bg-[#EBE6DC] border-2 border-emerald-500 shadow-xl text-center space-y-4">
@@ -592,9 +596,9 @@ export const GateScanner: React.FC<GateScannerProps> = ({
 
               <button
                 onClick={handleScanNextGuest}
-                className="w-full py-3.5 rounded-xl font-bold text-xs tracking-wider uppercase text-white bg-emerald-600 hover:bg-emerald-700 shadow-md transition-all cursor-pointer"
+                className="w-full py-4 rounded-2xl font-bold text-sm tracking-wider uppercase text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
               >
-                Scan Next Attendee
+                Scan Next Ticket
               </button>
             </div>
           )}
@@ -640,9 +644,9 @@ export const GateScanner: React.FC<GateScannerProps> = ({
 
               <button
                 onClick={handleScanNextGuest}
-                className="w-full py-3.5 rounded-xl font-bold text-xs tracking-wider uppercase text-white bg-rose-600 hover:bg-rose-700 shadow-md transition-all cursor-pointer"
+                className="w-full py-4 rounded-2xl font-bold text-sm tracking-wider uppercase text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.99] shadow-lg shadow-rose-600/30 transition-all cursor-pointer"
               >
-                Scan Next Attendee
+                Scan Next Ticket
               </button>
             </div>
           )}
@@ -655,18 +659,18 @@ export const GateScanner: React.FC<GateScannerProps> = ({
               </div>
 
               <div>
-                <span className="text-[11px] font-mono tracking-widest uppercase text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+                <span className="text-[11px] font-mono tracking-widest uppercase text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300 font-bold">
                   Staff Verification Flag • {scanResult.scannedAt}
                 </span>
-                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#2A2A2B] mt-2">
-                  {scanResult.message}
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#2A2A2B] mt-2">
+                  Tickets are not verified from the admin
                 </h3>
               </div>
 
               {scanResult.ticket && (
                 <div className="p-4 rounded-2xl bg-white border border-amber-200 text-left text-xs space-y-2 shadow-sm">
-                  <p className="text-amber-800">
-                    Payment status for this ticket is currently <strong>{scanResult.ticket.status}</strong>. The banking UTR (<code>{scanResult.ticket.utrNumber}</code>) has not yet been approved by the club administrator.
+                  <p className="text-amber-800 font-medium">
+                    This ticket has not yet been approved by the club administrator. Payment UTR: <code className="bg-amber-50 px-1 py-0.5 rounded border border-amber-200">{scanResult.ticket.utrNumber}</code>
                   </p>
                   <p className="text-[#4A4A4A]">
                     Guest Name: <strong className="text-[#2A2A2B]">{scanResult.ticket.attendeeName}</strong> ({scanResult.ticket.attendeePhone || 'No phone'})
@@ -679,9 +683,9 @@ export const GateScanner: React.FC<GateScannerProps> = ({
 
               <button
                 onClick={handleScanNextGuest}
-                className="w-full py-3.5 rounded-xl font-bold text-xs tracking-wider uppercase text-white bg-amber-600 hover:bg-amber-700 shadow-md transition-all cursor-pointer"
+                className="w-full py-4 rounded-2xl font-bold text-sm tracking-wider uppercase text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.99] shadow-lg shadow-amber-600/30 transition-all cursor-pointer"
               >
-                Scan Next Attendee
+                Scan Next Ticket
               </button>
             </div>
           )}

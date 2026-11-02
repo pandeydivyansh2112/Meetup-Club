@@ -69,9 +69,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => handleNavClick('home')}
           className="flex items-center gap-3 group text-left focus:outline-none"
         >
-          {cmsContent.logoUrl ? (
+          {cmsContent.logoUrl && cmsContent.logoUrl.trim() ? (
             <img
-              src={cmsContent.logoUrl}
+              src={cmsContent.logoUrl.trim()}
               alt="Meetup Club"
               className="max-h-11 w-auto object-contain rounded-lg border border-[#D8D2C5]"
             />
@@ -155,9 +155,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#EBE6DC] border border-[#D8D2C5] hover:border-[#F04E36] transition-all text-xs font-medium text-[#2A2A2B] shadow-xs"
               >
-                {userSession.photoURL ? (
+                {userSession.photoURL && userSession.photoURL.trim() ? (
                   <img
-                    src={userSession.photoURL}
+                    src={userSession.photoURL.trim()}
                     alt=""
                     className="w-6 h-6 rounded-full object-cover border border-[#D8D2C5]"
                   />

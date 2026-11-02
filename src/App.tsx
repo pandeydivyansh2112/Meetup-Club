@@ -174,7 +174,7 @@ export default function App() {
     }
   };
 
-  // Sync user session to localStorage and auto-redirect attendee to My Attendee Panel
+  // Sync user session to localStorage and auto-redirect attendee to My Attendee Panel or resume checkout
   const handleLoginSuccess = (session: UserSession) => {
     setUserSession(session);
     localStorage.setItem('mc_user_session', JSON.stringify(session));
@@ -183,22 +183,36 @@ export default function App() {
     } else if (session.role === 'staff') {
       handleNavigate('gate-scanner');
     } else {
-      handleNavigate('my-tickets');
+      // If user was prompted to sign in while buying a ticket, immediately reopen checkout
+      if (selectedEventForBuy) {
+        setBuyTicketModalOpen(true);
+      } else {
+        handleNavigate('my-tickets');
+      }
     }
   };
 
   const handleSignOut = () => {
     setUserSession(null);
+    setSelectedEventForBuy(null);
     localStorage.removeItem('mc_user_session');
     handleNavigate('home');
   };
 
+  // Mandatory Authentication Guard on Ticket Purchase:
+  // If unauthenticated guest clicks Book Ticket, automatically pop up Sign In / Sign Up modal.
   const handleOpenBuyModal = (event: EventItem) => {
     setSelectedEventForBuy(event);
+    if (!userSession || userSession.role !== 'attendee') {
+      setAuthDefaultTab('attendee');
+      setAuthModalOpen(true);
+      return;
+    }
     setBuyTicketModalOpen(true);
   };
 
   const handleTicketPurchased = (_ticketId: string) => {
+    setSelectedEventForBuy(null);
     // When purchased, attendee can view ticket status under My Attendee Panel
     handleNavigate('my-tickets');
   };
@@ -508,7 +522,7 @@ export default function App() {
                     >
                       <div className="space-y-3">
                         <div className="h-44 rounded-xl overflow-hidden bg-[#D8D2C5]">
-                          <img src={item.coverImageUrl} alt={item.title} className="w-full h-full object-cover" />
+                          <img src={item.coverImageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80'} alt={item.title} className="w-full h-full object-cover" />
                         </div>
                         <span className="text-[10px] font-mono text-[#F04E36] uppercase font-bold block">
                           {item.clientOrEvent}
@@ -554,7 +568,7 @@ export default function App() {
                       className="group relative h-56 rounded-2xl overflow-hidden bg-[#EBE6DC] border border-[#D8D2C5] cursor-pointer shadow-xs hover:shadow-md"
                     >
                       <img
-                        src={item.imageUrl}
+                        src={item.imageUrl || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=80'}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -692,7 +706,7 @@ export default function App() {
                     <div>
                       <div className="h-56 w-full overflow-hidden bg-[#D8D2C5]">
                         <img
-                          src={item.coverImageUrl}
+                          src={item.coverImageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80'}
                           alt={item.title}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                         />
@@ -759,7 +773,7 @@ export default function App() {
                   >
                     <div className="h-64 w-full bg-[#D8D2C5]">
                       <img
-                        src={item.imageUrl}
+                        src={item.imageUrl || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=80'}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -1079,7 +1093,7 @@ export default function App() {
       </main>
 
       {/* Lightbox for Gallery */}
-      {lightboxImage && (
+      {lightboxImage && lightboxImage.trim() !== '' && (
         <div
           onClick={() => setLightboxImage(null)}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md cursor-zoom-out"
@@ -1121,6 +1135,10 @@ export default function App() {
         onClose={() => setBuyTicketModalOpen(false)}
         cmsContent={cmsContent}
         userSession={userSession}
+        onRequireAuth={() => {
+          setAuthDefaultTab('attendee');
+          setAuthModalOpen(true);
+        }}
         onTicketPurchased={handleTicketPurchased}
       />
 

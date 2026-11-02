@@ -30,6 +30,7 @@ interface BuyTicketModalProps {
   cmsContent: CMSContentData;
   userSession: UserSession | null;
   onTicketPurchased: (ticketId: string) => void;
+  onRequireAuth?: () => void;
 }
 
 export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
@@ -39,6 +40,7 @@ export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
   cmsContent,
   userSession,
   onTicketPurchased,
+  onRequireAuth,
 }) => {
   // 4 Steps: 1 = Info, 2 = UPI Gateway, 3 = Proof Submission, 4 = Confirmation Modal
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -113,6 +115,12 @@ export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
     e.preventDefault();
     setValidationError('');
 
+    if (!userSession || userSession.role !== 'attendee') {
+      setValidationError('Sign-in is mandatory before purchasing tickets. Please log in or register.');
+      if (onRequireAuth) onRequireAuth();
+      return;
+    }
+
     if (!fullName.trim()) {
       setValidationError('Please enter your full legal name.');
       return;
@@ -149,6 +157,12 @@ export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError('');
+
+    if (!userSession || userSession.role !== 'attendee') {
+      setValidationError('Sign-in is mandatory before submitting payment. Please log in to your Attendee account.');
+      if (onRequireAuth) onRequireAuth();
+      return;
+    }
 
     if (!receiptUrl) {
       setValidationError('Please upload a screenshot or copy of your payment receipt.');
@@ -259,6 +273,30 @@ export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
           <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-400 text-rose-800 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{validationError}</span>
+          </div>
+        )}
+
+        {/* Mandatory Sign-In Notice Banner */}
+        {(!userSession || userSession.role !== 'attendee') && (
+          <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="font-semibold text-amber-950">Mandatory Attendee Sign-In Required</p>
+                <p className="text-[11px] text-amber-800 mt-0.5">
+                  You must be logged into your registered Attendee profile to purchase tickets and generate scannable gate passes.
+                </p>
+              </div>
+            </div>
+            {onRequireAuth && (
+              <button
+                type="button"
+                onClick={onRequireAuth}
+                className="px-3.5 py-1.5 rounded-xl bg-[#F04E36] hover:bg-[#d63f28] text-white text-xs font-bold whitespace-nowrap shadow-xs cursor-pointer"
+              >
+                Sign In / Register
+              </button>
+            )}
           </div>
         )}
 
@@ -407,7 +445,7 @@ export const BuyTicketModal: React.FC<BuyTicketModalProps> = ({
               <div className="relative group shrink-0">
                 <div className="w-40 h-40 p-2 rounded-xl bg-white flex items-center justify-center shadow-sm border-2 border-[#F04E36]">
                   <img
-                    src={cmsContent.adminUpiQrUrl}
+                    src={cmsContent.adminUpiQrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${encodeURIComponent(cmsContent.adminUpiId || '8287342192@ptyes')}%26pn=Meetup%20Club%26cu=INR`}
                     alt="Administrator UPI QR Code"
                     className="w-full h-full object-contain"
                   />

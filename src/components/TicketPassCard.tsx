@@ -55,7 +55,7 @@ export const TicketPassCard: React.FC<TicketPassCardProps> = ({ ticket }) => {
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
             <Clock3 className="w-3.5 h-3.5 text-amber-600" />
-            <span>PENDING VERIFICATION</span>
+            <span>Tickets are not verified from the admin</span>
           </div>
         );
       case 'Rejected':
@@ -104,7 +104,7 @@ export const TicketPassCard: React.FC<TicketPassCardProps> = ({ ticket }) => {
   return (
     <div
       ref={cardRef}
-      className="relative rounded-3xl overflow-hidden bg-[#EBE6DC] border border-[#D8D2C5] shadow-lg transition-all duration-300 hover:shadow-xl"
+      className="ticket-print-target relative rounded-3xl overflow-hidden bg-[#EBE6DC] border border-[#D8D2C5] shadow-lg transition-all duration-300 hover:shadow-xl"
     >
       {/* Top Header */}
       <div className="relative p-6 sm:p-7 bg-[#F4F1EA] border-b border-[#D8D2C5]">
@@ -188,10 +188,10 @@ export const TicketPassCard: React.FC<TicketPassCardProps> = ({ ticket }) => {
             <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed space-y-1">
               <span className="font-semibold text-amber-950 flex items-center gap-1.5">
                 <Clock3 className="w-3.5 h-3.5 text-amber-600" />
-                Verification In Progress (10–20 Mins):
+                Tickets are not verified from the admin
               </span>
               <p>
-                Your payment receipt and UTR reference are being matched against treasury bank statements. Turnstile gate access activates immediately upon verification.
+                Your payment receipt and UTR reference ({ticket.utrNumber}) are pending verification by the administrator. Turnstile gate access activates immediately upon verification.
               </p>
             </div>
           )}
@@ -240,7 +240,7 @@ export const TicketPassCard: React.FC<TicketPassCardProps> = ({ ticket }) => {
       </div>
 
       {/* Ticket Footer Bar with "Download Ticket / Save QR" and Print Actions */}
-      <div className="p-4 sm:p-5 bg-[#F4F1EA] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#4A4A4A]">
+      <div className="no-print p-4 sm:p-5 bg-[#F4F1EA] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#4A4A4A]">
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#F04E36]" />
           <span>Meetup Club Non-Transferable Digital Pass</span>
@@ -262,7 +262,7 @@ export const TicketPassCard: React.FC<TicketPassCardProps> = ({ ticket }) => {
             title="Print or save PDF pass"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>Print Pass</span>
+            <span>Print Ticket</span>
           </button>
         </div>
       </div>

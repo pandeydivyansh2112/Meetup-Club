@@ -30,7 +30,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, tickets = [], onBuy
         {/* Cover image container */}
         <div className="relative h-60 w-full overflow-hidden bg-[#D8D2C5]">
           <img
-            src={event.coverImageUrl}
+            src={event.coverImageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80'}
             alt={event.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

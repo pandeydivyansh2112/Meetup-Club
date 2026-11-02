@@ -29,3 +29,67 @@
   background: #F04E36;
 }
 
+/* ========================================================================== */
+/* TICKET-ONLY PRINTING LAYOUT (CSS @media print)                             */
+/* ========================================================================== */
+@media print {
+  @page {
+    size: auto;
+    margin: 12mm;
+  }
+
+  /* Hide all surrounding page chrome: headers, navbars, footers, buttons, and decorative elements */
+  nav,
+  header,
+  footer,
+  button,
+  .no-print,
+  .fixed,
+  aside,
+  [role="dialog"] > div:first-child:not(.ticket-print-target) {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Reset body and document canvas for pristine high-fidelity print */
+  html, body {
+    background: #FFFFFF !important;
+    color: #1A1A1A !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Isolate ticket pass card and preserve colors */
+  .ticket-print-target {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1.5px solid #D8D2C5 !important;
+    border-radius: 20px !important;
+    background: #FFFFFF !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ticket-print-target * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ticket-print-target .no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
