@@ -285,8 +285,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
       console.error('Admin authentication rejected:', err);
       setErrorMsg(
-        err.message ||
-          'Invalid administrator credentials. Access restricted. Use admin@meetupclub.com and Admin@Meetup2026!'
+        err.message || 'Invalid administrator credentials. Access restricted.'
       );
     } finally {
       setLoading(false);
@@ -695,9 +694,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <input
                     type="email"
                     required
-                    placeholder="admin@meetupclub.com"
+                    placeholder="Enter admin email address"
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
+                    autoComplete="off"
                     className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-white border border-[#D8D2C5] focus:border-[#F04E36] focus:ring-1 focus:ring-[#F04E36] focus:outline-none text-[#2A2A2B] font-mono placeholder-[#736B63]"
                   />
                 </div>
@@ -712,29 +712,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <input
                     type="password"
                     required
-                    placeholder="••••••••••••"
+                    placeholder="Enter master admin password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-white border border-[#D8D2C5] focus:border-[#F04E36] focus:ring-1 focus:ring-[#F04E36] focus:outline-none text-[#2A2A2B] placeholder-[#736B63]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-[#4A4A4A] pt-0.5">
-                <span className="font-mono text-[10px] text-[#736B63]">
-                  Default: <span className="text-[#2A2A2B] font-semibold">admin@meetupclub.com</span>
+              <div className="flex items-center justify-between text-[11px] text-[#736B63] pt-0.5">
+                <span className="text-[10px] font-mono text-[#736B63]">
+                  Authorized personnel only
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAdminEmail('admin@meetupclub.com');
-                    setAdminPassword('Admin@Meetup2026!');
-                    setErrorMsg('');
-                  }}
-                  className="text-[10px] font-mono text-[#F04E36] hover:underline font-semibold cursor-pointer"
-                >
-                  Auto-fill Master Credentials
-                </button>
+                <span className="text-[10px] text-[#736B63]">
+                  Manual entry required
+                </span>
               </div>
 
               <button
